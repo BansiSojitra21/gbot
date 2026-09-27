@@ -79,7 +79,7 @@ if prompt:
                 )
 
                 answer = response.choices[0].message.content
-
+                
                 if not answer:
                     answer = "The model returned an empty response."
 
