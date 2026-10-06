@@ -2,6 +2,8 @@ import os
 import uuid
 
 import streamlit as st
+import faiss
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from pypdf import PdfReader
 from openai import OpenAI
@@ -239,6 +241,87 @@ def get_client(key):
 
 client = get_client(api_key)
 
+# ============================================================
+# EMBEDDING MODEL
+# ============================================================
+
+@st.cache_resource
+def get_embedding_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
+
+embedding_model = get_embedding_model()
+
+# ============================================================
+# TEXT CHUNKING
+# ============================================================
+
+def create_chunks(text,page_number,chunk_size=1000,overlap=200):
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunk_text = text[start:end].strip()
+        if chunk_text:
+            chunks.append({
+                "text": chunk_text,
+                "page": page_number
+            })
+        start += chunk_size - overlap
+    return chunks
+
+
+# ============================================================
+# CREATE RAG INDEX FROM PDF
+# ============================================================
+
+def create_rag_index(uploaded_pdf):
+    reader = PdfReader(uploaded_pdf)
+    all_chunks = []
+
+    for page_number,page in enumerate(reader.pages,start=1) :
+        page_text = page.extract_text()
+
+        if not page_text:
+            continue
+
+        page_chunks = create_chunks(page_text,page_number)
+
+        all_chunks.extend(page_chunks)
+    
+    if not all_chunks:
+
+        return None, []
+
+    # --------------------------------------------------------
+    # CREATE EMBEDDINGS
+    # --------------------------------------------------------
+
+    texts = [
+        chunk["text"]
+        for chunk in all_chunks
+    ]
+
+    embeddings = embedding_model.encode(
+        texts,
+        convert_to_numpy=True,
+        normalize_embeddings=True
+    )
+
+    embeddings = embeddings.astype("float32")
+
+    # --------------------------------------------------------
+    # CREATE FAISS INDEX
+    # --------------------------------------------------------
+
+    dimension = embeddings.shape[1]
+
+    index = faiss.IndexFlatIP(
+        dimension
+    )
+
+    index.add(embeddings)
+
+    return index, all_chunks
 
 # ============================================================
 # SESSION STATE
@@ -255,6 +338,60 @@ if "current_chat_id" not in st.session_state:
 
 
 # ============================================================
+# RETRIEVE RELEVANT DOCUMENT CHUNKS
+# ============================================================
+
+def retrieve_documents(
+    question,
+    index,
+    chunks,
+    top_k=4
+):
+
+    if index is None or not chunks:
+
+        return []
+
+    # Create embedding for user question
+
+    question_embedding = embedding_model.encode(
+        [question],
+        convert_to_numpy=True,
+        normalize_embeddings=True
+    )
+
+    question_embedding = question_embedding.astype(
+        "float32"
+    )
+
+    # Search FAISS
+
+    scores, indices = index.search(
+        question_embedding,
+        min(top_k, len(chunks))
+    )
+
+    retrieved_chunks = []
+
+    for score, index_position in zip(
+        scores[0],
+        indices[0]
+    ):
+
+        if index_position == -1:
+            continue
+
+        chunk = chunks[index_position].copy()
+
+        chunk["score"] = float(score)
+
+        retrieved_chunks.append(
+            chunk
+        )
+
+    return retrieved_chunks
+
+# ============================================================
 # CREATE NEW CHAT
 # ============================================================
 
@@ -266,7 +403,13 @@ def create_new_chat():
 
         "title": "New Chat",
 
-        "messages": []
+        "messages": [],
+
+        "rag_index": None,
+
+        "rag_chunks": [],
+
+        "document_name": None
 
     }
 
@@ -486,136 +629,224 @@ prompt = st.chat_input(
 
 if prompt:
 
+    # --------------------------------------------------------
+    # GET USER TEXT
+    # --------------------------------------------------------
+
     if hasattr(prompt, "text"):
-        user_text = prompt.text
+        user_text = prompt.text or ""
     elif isinstance(prompt, dict) and "text" in prompt:
-        user_text = prompt["text"]
+        user_text = prompt["text"] or ""
     else:
-        user_text = prompt
+        user_text = str(prompt) if prompt else ""
+
+
+    # --------------------------------------------------------
+    # GET UPLOADED FILES
+    # --------------------------------------------------------
 
     if hasattr(prompt, "files"):
-        uploaded_files = prompt.files
+        uploaded_files = prompt.files or []
     elif isinstance(prompt, dict) and "files" in prompt:
-        uploaded_files = prompt["files"]
+        uploaded_files = prompt["files"] or []
     else:
         uploaded_files = []
 
+
+    # --------------------------------------------------------
+    # PROCESS PDF(S)
+    # --------------------------------------------------------
+
     if uploaded_files:
+
         for uploaded_pdf in uploaded_files:
-            reader = PdfReader(uploaded_pdf)
-            pdf_text = ""
-            for page in reader.pages:
-                text = page.extract_text()
-                if text:
-                    pdf_text += text + "\n"
-            st.session_state.pdf_text = pdf_text
-            st.toast(f"PDF '{uploaded_pdf.name}' loaded successfully! {len(reader.pages)} pages found.")
 
-    if user_text:
+            with st.spinner(
+                f"Processing {uploaded_pdf.name}..."
+            ):
 
-        # ========================================================
-        # SAVE USER MESSAGE
-        # ========================================================
+                index, chunks = create_rag_index(
+                    uploaded_pdf
+                )
+
+            if index is None:
+
+                st.error(
+                    "Could not extract readable text from the PDF."
+                )
+
+            else:
+
+                current_chat["rag_index"] = index
+                current_chat["rag_chunks"] = chunks
+                current_chat["document_name"] = uploaded_pdf.name
+
+                st.toast(
+                    f"PDF '{uploaded_pdf.name}' processed successfully! "
+                    f"{len(chunks)} chunks created."
+                )
+
+
+    # --------------------------------------------------------
+    # SAVE USER MESSAGE
+    # --------------------------------------------------------
+
+    current_chat["messages"].append(
+        {
+            "role": "user",
+            "content": user_text
+        }
+    )
+
+
+    # --------------------------------------------------------
+    # CREATE CHAT TITLE
+    # --------------------------------------------------------
+
+    if current_chat["title"] == "New Chat":
+
+        title = user_text.strip()
+
+        if not title:
+            title = "Document Chat"
+
+        if len(title) > 32:
+            title = title[:32] + "..."
+
+        current_chat["title"] = title
+
+
+    # --------------------------------------------------------
+    # DISPLAY USER MESSAGE
+    # --------------------------------------------------------
+
+    with st.chat_message("user"):
+
+        st.write(user_text)
+
+
+    # ========================================================
+    # RETRIEVE RELEVANT DOCUMENT CHUNKS
+    # ========================================================
+
+    retrieved_chunks = retrieve_documents(
+        user_text,
+        current_chat["rag_index"],
+        current_chat["rag_chunks"],
+        top_k=4
+    )
+
+
+    # ========================================================
+    # BUILD RAG CONTEXT
+    # ========================================================
+
+    rag_context = ""
+
+    for chunk in retrieved_chunks:
+
+        rag_context += (
+            f"[Page {chunk['page']}]\n"
+            f"{chunk['text']}\n\n"
+        )
+
+
+    # ========================================================
+    # CREATE SYSTEM PROMPT
+    # ========================================================
+
+    system_prompt = """
+You are a document-based AI assistant.
+
+Answer the user's question using the provided document context.
+
+Rules:
+
+1. Use the document context as the primary source.
+2. Do not invent information that is not supported by the document.
+3. If the answer cannot be found in the provided context,
+   clearly say that the information was not found in the document.
+4. When possible, mention the page number of the relevant information.
+5. Give clear and concise answers.
+"""
+
+
+    if retrieved_chunks:
+
+        system_prompt += (
+            "\n\nDOCUMENT CONTEXT:\n\n"
+            + rag_context
+        )
+
+    else:
+
+        system_prompt += (
+            "\n\nNo relevant document context was found."
+        )
+
+
+    # ========================================================
+    # GENERATE AI RESPONSE
+    # ========================================================
+
+    try:
+
+        with st.chat_message("assistant"):
+
+            with st.spinner("Thinking..."):
+
+                messages_to_send = current_chat["messages"].copy()
+
+                messages_to_send.insert(
+                    0,
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    }
+                )
+
+                response = client.chat.completions.create(
+
+                    model="openrouter/free",
+
+                    messages=messages_to_send
+
+                )
+
+                answer = (
+                    response
+                    .choices[0]
+                    .message
+                    .content
+                )
+
+                if not answer:
+
+                    answer = (
+                        "Sorry, I couldn't generate "
+                        "a response."
+                    )
+
+                st.write(answer)
+
+
+        # ====================================================
+        # SAVE AI RESPONSE
+        # ====================================================
 
         current_chat["messages"].append(
             {
-                "role": "user",
-                "content": user_text
+                "role": "assistant",
+                "content": answer
             }
         )
 
 
-        # ========================================================
-        # CREATE CHAT TITLE
-        # ========================================================
+    except Exception as e:
 
-        if current_chat["title"] == "New Chat":
+        # Remove failed user message
+        current_chat["messages"].pop()
 
-            title = user_text.strip()
-
-
-            # Limit title length
-            if len(title) > 32:
-
-                title = title[:32] + "..."
-
-
-            current_chat["title"] = title
-
-
-        # ========================================================
-        # DISPLAY USER MESSAGE
-        # ========================================================
-
-        with st.chat_message("user"):
-
-            st.write(user_text)
-
-
-        # ========================================================
-        # GENERATE AI RESPONSE
-        # ========================================================
-
-        try:
-
-            with st.chat_message("assistant"):
-
-                with st.spinner("Thinking..."):
-
-                    messages_to_send = current_chat["messages"].copy()
-                    if "pdf_text" in st.session_state and st.session_state.pdf_text:
-                        messages_to_send.insert(0, {
-                            "role": "system",
-                            "content": f"Context from uploaded PDF:\n{st.session_state.pdf_text}"
-                        })
-
-                    response = client.chat.completions.create(
-
-                        model="openrouter/free",
-
-                        messages=messages_to_send
-
-                    )
-
-
-                    answer = (
-                        response
-                        .choices[0]
-                        .message
-                        .content
-                    )
-
-
-                    # Make sure response isn't empty
-                    if not answer:
-                    
-                        answer = (
-                            "Sorry, I couldn't generate "
-                            "a response."
-                        )
-
-
-                    st.write(answer)
-
-
-            # ====================================================
-            # SAVE AI RESPONSE
-            # ====================================================
-
-            current_chat["messages"].append(
-                {
-                    "role": "assistant",
-                    "content": answer
-                }
-            )
-
-
-        except Exception as e:
-
-            # Remove failed user message
-            current_chat["messages"].pop()
-
-
-            st.error(
-                f"API Error: {e}"
-            )
+        st.error(
+            f"API Error: {e}"
+        )
