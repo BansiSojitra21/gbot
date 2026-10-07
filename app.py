@@ -104,13 +104,6 @@ if not current_chat:
     current_chat = get_current_chat()
     st.rerun()
 
-# ============================================================
-# MAIN TITLE (Hidden since it's moved to sidebar, keeping subtitle)
-# ============================================================
-if current_chat["title"] == "New Chat":
-    st.markdown('<div class="main-subtitle">How can I help you today?</div>', unsafe_allow_html=True)
-else:
-    st.markdown('<div class="main-subtitle">Powered by OpenRouter</div>', unsafe_allow_html=True)
 
 # ============================================================
 # DISPLAY CURRENT CHAT
