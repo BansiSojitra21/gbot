@@ -84,9 +84,19 @@
     align-items: center;
 }
 
-/* Hide chevron icon inside popovers */
-[data-testid="stSidebar"] [data-testid="stPopover"] button svg {
+/* Hide chevron icon inside popovers (and any other default icons) */
+[data-testid="stSidebar"] [data-testid="stPopover"] button svg,
+[data-testid="stSidebar"] [data-testid="stPopover"] button i {
     display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stPopover"] button::after,
+[data-testid="stSidebar"] [data-testid="stPopover"] button::before {
+    display: none !important;
+    content: none !important;
 }
 
 /* Make columns in chat history have less gap */
