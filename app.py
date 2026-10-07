@@ -58,10 +58,9 @@ with st.sidebar:
                 st.session_state.current_chat_id = chat_id
                 st.rerun()
         with col2:
-            with st.popover("...", use_container_width=True):
-                if st.button("🗑️ Delete", key=f"delete_chat_{chat_id}", use_container_width=True):
-                    delete_chat(chat_id)
-                    st.rerun()
+            if st.button("🗑️", key=f"delete_chat_{chat_id}", help="Delete chat", use_container_width=True):
+                delete_chat(chat_id)
+                st.rerun()
                     
     st.divider()
     if st.button("🧹  Clear All Chats", use_container_width=True, key="clear_all_chats"):
