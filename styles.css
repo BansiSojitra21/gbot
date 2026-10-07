@@ -1,0 +1,92 @@
+/* ChatGPT-like Responsive Theme */
+
+/* Center main block */
+.block-container {
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding-top: 3rem !important;
+    padding-bottom: 6rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Chat Input Styling */
+[data-testid="stChatInput"] {
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    border-radius: 1.5rem !important;
+    border: 1px solid var(--secondary-background-color) !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05) !important;
+    padding: 0.5rem;
+    background-color: var(--secondary-background-color);
+}
+
+[data-testid="stChatInput"] textarea {
+    font-size: 1rem !important;
+}
+
+/* Chat Messages Structure */
+[data-testid="stChatMessage"] {
+    background-color: transparent !important;
+    padding: 1rem 0 !important;
+    border-radius: 0;
+    gap: 1.5rem;
+}
+
+/* Sidebar adjustments */
+[data-testid="stSidebar"] {
+    min-width: 260px !important;
+    max-width: 260px !important;
+}
+
+/* Sidebar buttons */
+[data-testid="stSidebar"] .stButton button {
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    padding-left: 0.5rem;
+    font-weight: 500;
+}
+
+[data-testid="stSidebar"] .stButton button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Three dots popover */
+div[data-testid="stPopoverBody"] {
+    border-radius: 0.5rem;
+    border: 1px solid var(--secondary-background-color);
+    padding: 0.5rem !important;
+}
+
+/* Top header hidden */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+}
+
+/* Typography */
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.main-subtitle {
+    font-size: 1rem;
+    opacity: 0.7;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 5rem !important;
+    }
+    
+    .main-title {
+        font-size: 2rem;
+    }
+}
