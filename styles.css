@@ -37,6 +37,16 @@
 [data-testid="stSidebar"] {
     min-width: 260px !important;
     max-width: 260px !important;
+    background-color: #171717 !important; /* attractive dark ChatGPT-like sidebar */
+}
+
+/* Sidebar Title */
+.sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    color: #ececec;
 }
 
 /* Sidebar Headings */

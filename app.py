@@ -40,13 +40,13 @@ init_session_state()
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    st.markdown("## 💬 Chats")
+    st.markdown('<div class="sidebar-title">🤖 AI Chatbot</div>', unsafe_allow_html=True)
     
     if st.button("＋  New Chat", use_container_width=True, key="new_chat"):
         create_new_chat()
         st.rerun()
         
-    st.divider()
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### Previous Chats")
     
     chat_items = list(st.session_state.chats.items())
@@ -63,7 +63,7 @@ with st.sidebar:
                 delete_chat(chat_id)
                 st.rerun()
                     
-    st.divider()
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🧹  Clear All Chats", use_container_width=True, key="clear_all_chats"):
         clear_all_chats()
         st.rerun()
@@ -77,10 +77,20 @@ with st.sidebar:
         // Ensure sidebar buttons align text to left
         const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
         buttons.forEach(btn => {
+            btn.style.display = 'flex';
             btn.style.justifyContent = 'flex-start';
+            btn.style.alignItems = 'center';
             btn.style.textAlign = 'left';
+            const mContainers = btn.querySelectorAll('[data-testid="stMarkdownContainer"]');
+            mContainers.forEach(m => {
+                m.style.width = '100%';
+                m.style.textAlign = 'left';
+            });
             const paras = btn.querySelectorAll('p');
-            paras.forEach(p => p.style.textAlign = 'left');
+            paras.forEach(p => {
+                p.style.width = '100%';
+                p.style.textAlign = 'left';
+            });
         });
         </script>
         """,
@@ -95,9 +105,8 @@ if not current_chat:
     st.rerun()
 
 # ============================================================
-# MAIN TITLE
+# MAIN TITLE (Hidden since it's moved to sidebar, keeping subtitle)
 # ============================================================
-st.markdown('<div class="main-title">🤖 AI Chatbot</div>', unsafe_allow_html=True)
 if current_chat["title"] == "New Chat":
     st.markdown('<div class="main-subtitle">How can I help you today?</div>', unsafe_allow_html=True)
 else:
