@@ -39,24 +39,67 @@
     max-width: 260px !important;
 }
 
-/* Sidebar buttons */
-[data-testid="stSidebar"] .stButton button {
-    text-align: left;
-    border: none;
-    background-color: transparent;
-    padding-left: 0.5rem;
-    font-weight: 500;
+/* Sidebar Headings */
+[data-testid="stSidebar"] h2 {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
 }
 
-[data-testid="stSidebar"] .stButton button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+[data-testid="stSidebar"] h3 {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    color: #999 !important;
 }
 
-/* Three dots popover */
+/* ALL Sidebar buttons (to make text smaller) */
+[data-testid="stSidebar"] button {
+    font-size: 13px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    border: none !important; /* Removes standard box border to feel like a single unified list */
+    background-color: transparent !important;
+}
+
+/* Chat History Titles specifically */
+[data-testid="stSidebar"] .stButton button p {
+    font-size: 13px !important;
+}
+
+/* Sidebar buttons hover effect */
+[data-testid="stSidebar"] button:hover {
+    background-color: var(--secondary-background-color) !important;
+}
+
+/* Fix for the Three-dots popover button */
+[data-testid="stSidebar"] [data-testid="stPopover"] button {
+    min-width: 32px !important;
+    width: 32px !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hide chevron icon inside popovers */
+[data-testid="stSidebar"] [data-testid="stPopover"] button svg {
+    display: none !important;
+}
+
+/* Make columns in chat history have less gap */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+    gap: 0.1rem !important;
+}
+
+/* Popover inner menu styling */
 div[data-testid="stPopoverBody"] {
     border-radius: 0.5rem;
     border: 1px solid var(--secondary-background-color);
     padding: 0.5rem !important;
+    background-color: var(--background-color) !important;
 }
 
 /* Top header hidden */
