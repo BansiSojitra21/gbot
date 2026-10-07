@@ -59,24 +59,20 @@ with st.sidebar:
                 st.session_state.current_chat_id = chat_id
                 st.rerun()
         with col2:
-            with st.popover("...", use_container_width=True):
-                if st.button("🗑️ Delete", key=f"delete_chat_{chat_id}", use_container_width=True):
-                    delete_chat(chat_id)
-                    st.rerun()
+            if st.button("🗑️", key=f"delete_chat_{chat_id}", help="Delete chat", use_container_width=True):
+                delete_chat(chat_id)
+                st.rerun()
                     
     st.divider()
     if st.button("🧹  Clear All Chats", use_container_width=True, key="clear_all_chats"):
         clear_all_chats()
         st.rerun()
 
-    # JS hack to remove popover chevron and enforce left alignment on chat titles
+    # JS to enforce left alignment on chat titles
     components.html(
         """
         <script>
         const parentDocs = window.parent.document;
-        // Hide popover chevrons
-        const svgs = parentDocs.querySelectorAll('[data-testid="stPopover"] button svg');
-        svgs.forEach(svg => svg.style.display = 'none');
         
         // Ensure sidebar buttons align text to left
         const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
@@ -85,12 +81,6 @@ with st.sidebar:
             btn.style.textAlign = 'left';
             const paras = btn.querySelectorAll('p');
             paras.forEach(p => p.style.textAlign = 'left');
-        });
-        
-        // Center the 3-dots button
-        const popoverBtns = parentDocs.querySelectorAll('[data-testid="stPopover"] button');
-        popoverBtns.forEach(btn => {
-            btn.style.justifyContent = 'center';
         });
         </script>
         """,
