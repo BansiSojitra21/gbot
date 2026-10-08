@@ -20,6 +20,7 @@ html, body, [class*="css"] {
     background-color: var(--main-bg) !important;
 }
 
+/* Sidebar structure */
 [data-testid="stSidebar"] {
     background-color: var(--sidebar-bg) !important;
     min-width: 260px !important;
@@ -27,141 +28,224 @@ html, body, [class*="css"] {
     border-right: 1px solid var(--border-color) !important;
 }
 
+/* Container for main content */
 .block-container {
     max-width: 850px !important;
     margin: 0 auto !important;
-    padding-top: 2rem !important;
+    padding-top: 1rem !important;
     padding-bottom: 6rem !important;
     padding-left: 1.5rem !important;
     padding-right: 1.5rem !important;
 }
 
-/* Typography Overrides */
+/* General Typography */
 p, div, span, li, a {
     color: var(--text-primary);
     font-size: 14px;
+    line-height: 1.5;
 }
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
 
+/* Sidebar Title */
 .sidebar-title {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    padding-left: 0.5rem;
+    padding-left: 0.2rem;
     color: var(--text-primary);
 }
 
+/* Sidebar Section Heading */
 .sidebar-section-heading {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
-    padding-left: 0.5rem;
+    padding-left: 0.2rem;
     margin-top: 1.5rem;
 }
 
-/* Base button styling */
+/* Base button styling cleanup */
 .stButton button {
     border-radius: 8px !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
+/* ----------------------------------------------------
+   JS-Assigned Classes for Sidebar Buttons
+---------------------------------------------------- */
+
 /* New Chat Button */
-.new-chat-btn-wrapper .stButton button {
+.btn-new-chat {
     background-color: transparent !important;
     border: 1px solid var(--border-color) !important;
+    width: 100% !important;
     justify-content: flex-start !important;
     padding-left: 12px !important;
     height: 40px !important;
+    min-height: 40px !important;
+}
+.btn-new-chat p {
     font-size: 14px !important;
     font-weight: 500 !important;
+    margin: 0 !important;
 }
-.new-chat-btn-wrapper .stButton button p {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-}
-.new-chat-btn-wrapper .stButton button:hover {
+.btn-new-chat:hover {
     background-color: var(--hover-bg) !important;
 }
 
 /* Clear All Button */
-.clear-all-btn-wrapper .stButton button {
+.btn-clear-all {
     background-color: transparent !important;
     border: 1px solid var(--border-color) !important;
-    height: 40px !important;
-    font-size: 13px !important;
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin-top: 1rem !important;
 }
-.clear-all-btn-wrapper .stButton button:hover {
+.btn-clear-all p {
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+.btn-clear-all:hover {
     background-color: var(--hover-bg) !important;
 }
 
-/* Chat History Items */
+/* Chat History Titles */
+.btn-chat-history {
+    background: transparent !important;
+    border: none !important;
+    justify-content: flex-start !important;
+    padding: 8px 8px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+.btn-chat-history p {
+    font-size: 13px !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* 3-dot Popover Trigger Button */
+.btn-popover {
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    font-size: 16px !important;
+    color: var(--text-secondary) !important;
+    font-weight: bold !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    line-height: 0.5 !important;
+}
+.btn-popover p {
+    color: transparent !important;
+}
+.btn-popover p::after {
+    content: "•••";
+    color: var(--text-secondary) !important;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px !important;
+}
+.btn-popover:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Delete Button Inside Popover */
+.btn-delete {
+    background: transparent !important;
+    color: #ff4a4a !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+.btn-delete p {
+    color: #ff4a4a !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+.btn-delete:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+/* ----------------------------------------------------
+   Chat History Layout Structure
+---------------------------------------------------- */
 [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 0 !important;
-    align-items: center;
-    border-radius: 8px;
-    margin-bottom: 2px;
-    padding: 0 4px;
+    padding: 0 4px !important;
+    margin-bottom: 2px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    background-color: transparent;
+    transition: background-color 0.2s;
 }
 [data-testid="stSidebar"] [data-testid="stHorizontalBlock"]:hover {
     background-color: var(--hover-bg);
 }
 
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton button {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 8px !important;
-    height: 36px !important;
-    min-height: 36px !important;
+/* Column 1: Title */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child {
+    width: calc(100% - 28px) !important;
+    flex: 1 1 auto !important;
+}
+/* Column 2: 3-dot */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="column"]:last-child {
+    width: 28px !important;
+    flex: 0 0 28px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton button p {
-    font-size: 13px !important;
-    color: var(--text-primary) !important;
-}
-
-/* 3-dot Popover styling */
+/* Hide 3-dots popover by default, show on hover */
 [data-testid="stSidebar"] [data-testid="stPopover"] {
     opacity: 0;
-    transition: opacity 0.2s;
+    pointer-events: none;
 }
-
 @media (hover: hover) {
-    [data-testid="stSidebar"] [data-testid="stHorizontalBlock"]:hover [data-testid="stPopover"] {
+    [data-testid="stSidebar"] [data-testid="stHorizontalBlock"]:hover [data-testid="stPopover"],
+    [data-testid="stSidebar"] [data-testid="stPopover"]:focus-within {
         opacity: 1;
+        pointer-events: auto;
     }
 }
 @media (hover: none) {
     [data-testid="stSidebar"] [data-testid="stPopover"] {
-        opacity: 0.8;
+        opacity: 1;
+        pointer-events: auto;
     }
 }
 
-[data-testid="stSidebar"] [data-testid="stPopover"] button {
-    min-width: 28px !important;
-    width: 28px !important;
-    height: 28px !important;
-    min-height: 28px !important;
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    font-size: 16px !important;
-    color: var(--text-secondary) !important;
-}
-[data-testid="stSidebar"] [data-testid="stPopover"] button:hover {
-    color: var(--text-primary) !important;
-}
-
-/* Hide default caret */
+/* Hide Streamlit default caret in popover */
 [data-testid="stSidebar"] [data-testid="stPopover"] button svg,
 [data-testid="stSidebar"] [data-testid="stPopover"] button i {
     display: none !important;
 }
 
-/* Popover body */
+/* Popover body container */
 div[data-testid="stPopoverBody"] {
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -170,23 +254,10 @@ div[data-testid="stPopoverBody"] {
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     min-width: 120px !important;
 }
-div[data-testid="stPopoverBody"] button {
-    border: none !important;
-    background: transparent !important;
-    color: #ff4a4a !important;
-    padding: 8px 12px !important;
-    width: 100% !important;
-    text-align: left !important;
-    border-radius: 6px !important;
-}
-div[data-testid="stPopoverBody"] button p {
-    color: #ff4a4a !important;
-}
-div[data-testid="stPopoverBody"] button:hover {
-    background-color: var(--hover-bg) !important;
-}
 
-/* Chat Input Styling */
+/* ----------------------------------------------------
+   Chat Input Styling
+---------------------------------------------------- */
 [data-testid="stChatInput"] {
     max-width: 850px !important;
     margin: 0 auto !important;
@@ -194,17 +265,42 @@ div[data-testid="stPopoverBody"] button:hover {
     border: 1px solid var(--border-color) !important;
     background-color: var(--input-bg) !important;
     padding: 4px 8px !important;
+    min-height: 52px !important;
 }
+
 [data-testid="stChatInput"] textarea {
     font-size: 14px !important;
     color: var(--text-primary) !important;
     background-color: transparent !important;
+    border: none !important;
+    padding: 8px !important;
 }
 [data-testid="stChatInput"] textarea::placeholder {
     color: var(--text-secondary) !important;
 }
 
-/* Chat Messages */
+/* Chat Input Send Button */
+[data-testid="stChatInput"] button {
+    background-color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 4px !important;
+    margin-right: 4px !important;
+}
+[data-testid="stChatInput"] button svg {
+    fill: var(--main-bg) !important;
+}
+[data-testid="stChatInput"] button:disabled {
+    background-color: #555 !important;
+}
+[data-testid="stChatInput"] button:disabled svg {
+    fill: #888 !important;
+}
+
+/* ----------------------------------------------------
+   Chat Messages Styling
+---------------------------------------------------- */
 [data-testid="stChatMessage"] {
     background-color: transparent !important;
     padding: 1.2rem 0 !important;
@@ -217,12 +313,12 @@ div[data-testid="stPopoverBody"] button:hover {
     color: var(--text-primary) !important;
 }
 [data-testid="stChatMessage"] [data-testid="stIconContainer"] {
-    width: 32px !important;
-    height: 32px !important;
+    width: 30px !important;
+    height: 30px !important;
     border-radius: 4px !important;
 }
 
-/* Top header hidden */
+/* Hide Top Header */
 header[data-testid="stHeader"] {
     background: transparent !important;
 }
@@ -230,7 +326,7 @@ header[data-testid="stHeader"]::before {
     content: none !important;
 }
 
-/* Empty chat container */
+/* Empty Chat Placeholder */
 .empty-chat-container {
     display: flex;
     justify-content: center;
@@ -238,12 +334,12 @@ header[data-testid="stHeader"]::before {
     height: 60vh;
 }
 .empty-chat-container h2 {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 500;
     color: var(--text-primary);
 }
 
-/* Dialog Overrides */
+/* Confirmation Dialog Overrides */
 div[role="dialog"] {
     background-color: var(--main-bg) !important;
     border: 1px solid var(--border-color) !important;
@@ -259,13 +355,11 @@ div[role="dialog"] p {
     color: var(--text-secondary) !important;
     margin-bottom: 1.5rem !important;
 }
-div[role="dialog"] button {
-    border-radius: 8px !important;
-}
 
-/* File uploader in chat input */
-[data-testid="stFileUploader"] {
-    margin-bottom: 0;
+/* Hide empty markdown wrappers used for script injection */
+.element-container:has(> script), 
+.stMarkdown:has(> script) {
+    display: none !important;
 }
 
 /* Responsiveness */

@@ -91,40 +91,50 @@ with st.sidebar:
         clear_all_chats_dialog()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # JS to enforce left alignment on chat titles and handle ellipsis
+    # JS to attach classes to buttons based on their text
     components.html(
         """
         <script>
         const parentDocs = window.parent.document;
         
-        // Find all buttons in the sidebar
-        const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
-        buttons.forEach(btn => {
-            // Skip styling for specific buttons like New Chat, popover, or delete
-            if(btn.innerText.includes("⋮") || btn.innerText.includes("Delete") || btn.innerText.includes("Clear All") || btn.innerText.includes("New Chat")) {
-                return;
-            }
-            btn.style.display = 'flex';
-            btn.style.justifyContent = 'flex-start';
-            btn.style.alignItems = 'center';
-            btn.style.textAlign = 'left';
-            btn.style.overflow = 'hidden';
-            
-            const mContainers = btn.querySelectorAll('[data-testid="stMarkdownContainer"]');
-            mContainers.forEach(m => {
-                m.style.width = '100%';
-                m.style.textAlign = 'left';
-                m.style.overflow = 'hidden';
+        function applyClasses() {
+            const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
+            buttons.forEach(btn => {
+                const text = btn.innerText.trim();
+                
+                // Remove existing custom classes
+                btn.classList.remove('btn-new-chat', 'btn-clear-all', 'btn-delete', 'btn-popover', 'btn-chat-history');
+                
+                if(text.includes("New Chat")) {
+                    btn.classList.add("btn-new-chat");
+                }
+                else if(text.includes("Clear All")) {
+                    btn.classList.add("btn-clear-all");
+                }
+                else if(text.includes("Delete") || text.includes("🗑️")) {
+                    btn.classList.add("btn-delete");
+                }
+                else if(text === "⋮" || text === "...") {
+                    btn.classList.add("btn-popover");
+                }
+                else {
+                    btn.classList.add("btn-chat-history");
+                }
             });
-            const paras = btn.querySelectorAll('p');
-            paras.forEach(p => {
-                p.style.width = '100%';
-                p.style.textAlign = 'left';
-                p.style.overflow = 'hidden';
-                p.style.textOverflow = 'ellipsis';
-                p.style.whiteSpace = 'nowrap';
-            });
+        }
+        
+        // Run immediately
+        applyClasses();
+        
+        // Streamlit dynamically rebuilds the DOM on interactions.
+        const observer = new MutationObserver((mutations) => {
+            applyClasses();
         });
+        
+        const sidebar = parentDocs.querySelector('[data-testid="stSidebar"]');
+        if (sidebar) {
+            observer.observe(sidebar, { childList: true, subtree: true });
+        }
         </script>
         """,
         height=0,
