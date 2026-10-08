@@ -36,60 +36,93 @@ client = get_client(api_key)
 
 init_session_state()
 
+# Confirmation Dialogs
+@st.dialog("Delete Chat")
+def delete_chat_dialog(chat_id):
+    st.write("Are you sure you want to delete this chat?")
+    if st.button("Yes, delete", use_container_width=True):
+        delete_chat(chat_id)
+        if st.session_state.get("current_chat_id") == chat_id:
+            st.session_state.current_chat_id = None
+        st.rerun()
+
+@st.dialog("Clear All Chats")
+def clear_all_chats_dialog():
+    st.write("Are you sure you want to clear all your chat history? This action cannot be undone.")
+    if st.button("Yes, clear all", use_container_width=True):
+        clear_all_chats()
+        st.session_state.current_chat_id = None
+        st.rerun()
+
 # ============================================================
 # SIDEBAR
 # ============================================================
 with st.sidebar:
     st.markdown('<div class="sidebar-title">🤖 AI Chatbot</div>', unsafe_allow_html=True)
     
-    if st.button("＋  New Chat", use_container_width=True, key="new_chat"):
+    st.markdown('<div class="new-chat-btn-wrapper">', unsafe_allow_html=True)
+    if st.button("＋ New Chat", use_container_width=True, key="new_chat"):
         create_new_chat()
         st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
         
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### Previous Chats")
+    st.markdown('<div class="sidebar-section-heading">Previous Chats</div>', unsafe_allow_html=True)
     
     chat_items = list(st.session_state.chats.items())
     chat_items.reverse()
     
     for chat_id, chat in chat_items:
-        col1, col2 = st.columns([8, 1], gap="small")
+        # Layout for chat history item
+        col1, col2 = st.columns([7, 1], gap="small")
         with col1:
-            if st.button(chat["title"], key=f"open_chat_{chat_id}", use_container_width=True):
+            title = chat["title"]
+            if st.button(title, key=f"open_chat_{chat_id}", use_container_width=True):
                 st.session_state.current_chat_id = chat_id
                 st.rerun()
         with col2:
-            if st.button("✕", key=f"delete_chat_{chat_id}", help="Delete chat", use_container_width=True):
-                delete_chat(chat_id)
-                st.rerun()
+            with st.popover("⋮", use_container_width=True):
+                if st.button("🗑️ Delete", key=f"delete_chat_{chat_id}", use_container_width=True):
+                    delete_chat_dialog(chat_id)
                     
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🧹  Clear All Chats", use_container_width=True, key="clear_all_chats"):
-        clear_all_chats()
-        st.rerun()
+    
+    st.markdown('<div class="clear-all-btn-wrapper">', unsafe_allow_html=True)
+    if st.button("🧹 Clear All Chats", use_container_width=True, key="clear_all_chats"):
+        clear_all_chats_dialog()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # JS to enforce left alignment on chat titles
+    # JS to enforce left alignment on chat titles and handle ellipsis
     components.html(
         """
         <script>
         const parentDocs = window.parent.document;
         
-        // Ensure sidebar buttons align text to left
+        // Find all buttons in the sidebar
         const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
         buttons.forEach(btn => {
+            // Skip styling for specific buttons like New Chat, popover, or delete
+            if(btn.innerText.includes("⋮") || btn.innerText.includes("Delete") || btn.innerText.includes("Clear All") || btn.innerText.includes("New Chat")) {
+                return;
+            }
             btn.style.display = 'flex';
             btn.style.justifyContent = 'flex-start';
             btn.style.alignItems = 'center';
             btn.style.textAlign = 'left';
+            btn.style.overflow = 'hidden';
+            
             const mContainers = btn.querySelectorAll('[data-testid="stMarkdownContainer"]');
             mContainers.forEach(m => {
                 m.style.width = '100%';
                 m.style.textAlign = 'left';
+                m.style.overflow = 'hidden';
             });
             const paras = btn.querySelectorAll('p');
             paras.forEach(p => {
                 p.style.width = '100%';
                 p.style.textAlign = 'left';
+                p.style.overflow = 'hidden';
+                p.style.textOverflow = 'ellipsis';
+                p.style.whiteSpace = 'nowrap';
             });
         });
         </script>
@@ -108,10 +141,19 @@ if not current_chat:
 # ============================================================
 # DISPLAY CURRENT CHAT
 # ============================================================
+messages_displayed = False
 for message in current_chat["messages"]:
     if message["role"] != "system":
+        messages_displayed = True
         with st.chat_message(message["role"]):
             st.write(message["content"])
+
+if not messages_displayed:
+    st.markdown("""
+        <div class="empty-chat-container">
+            <h2>How can I help you today?</h2>
+        </div>
+    """, unsafe_allow_html=True)
 
 # ============================================================
 # CHAT INPUT
@@ -162,7 +204,7 @@ if prompt:
         st.write(user_text)
         
     # Retrieve relevant document chunks if available
-    retrieved_chunks = retrieve_documents(user_text, current_chat["rag_index"], current_chat["rag_chunks"], top_k=4)
+    retrieved_chunks = retrieve_documents(user_text, current_chat.get("rag_index"), current_chat.get("rag_chunks"), top_k=4)
     
     rag_context = ""
     for chunk in retrieved_chunks:

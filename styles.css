@@ -1,145 +1,271 @@
 /* ChatGPT-like Responsive Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-/* Center main block */
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+}
+
+:root {
+    --main-bg: #212121;
+    --sidebar-bg: #171717;
+    --input-bg: #2F2F2F;
+    --border-color: #3A3A3A;
+    --text-primary: #F5F5F5;
+    --text-secondary: #A3A3A3;
+    --hover-bg: #2A2A2A;
+    --accent: #10a37f;
+}
+
+.stApp {
+    background-color: var(--main-bg) !important;
+}
+
+[data-testid="stSidebar"] {
+    background-color: var(--sidebar-bg) !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
 .block-container {
-    max-width: 800px !important;
+    max-width: 850px !important;
     margin: 0 auto !important;
-    padding-top: 3rem !important;
+    padding-top: 2rem !important;
     padding-bottom: 6rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+/* Typography Overrides */
+p, div, span, li, a {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
+    color: var(--text-primary);
+}
+
+.sidebar-section-heading {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+/* Base button styling */
+.stButton button {
+    border-radius: 8px !important;
+}
+
+/* New Chat Button */
+.new-chat-btn-wrapper .stButton button {
+    background-color: transparent !important;
+    border: 1px solid var(--border-color) !important;
+    justify-content: flex-start !important;
+    padding-left: 12px !important;
+    height: 40px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+.new-chat-btn-wrapper .stButton button p {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+.new-chat-btn-wrapper .stButton button:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+/* Clear All Button */
+.clear-all-btn-wrapper .stButton button {
+    background-color: transparent !important;
+    border: 1px solid var(--border-color) !important;
+    height: 40px !important;
+    font-size: 13px !important;
+}
+.clear-all-btn-wrapper .stButton button:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+/* Chat History Items */
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+    gap: 0 !important;
+    align-items: center;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    padding: 0 4px;
+}
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"]:hover {
+    background-color: var(--hover-bg);
+}
+
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton button p {
+    font-size: 13px !important;
+    color: var(--text-primary) !important;
+}
+
+/* 3-dot Popover styling */
+[data-testid="stSidebar"] [data-testid="stPopover"] {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+@media (hover: hover) {
+    [data-testid="stSidebar"] [data-testid="stHorizontalBlock"]:hover [data-testid="stPopover"] {
+        opacity: 1;
+    }
+}
+@media (hover: none) {
+    [data-testid="stSidebar"] [data-testid="stPopover"] {
+        opacity: 0.8;
+    }
+}
+
+[data-testid="stSidebar"] [data-testid="stPopover"] button {
+    min-width: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 16px !important;
+    color: var(--text-secondary) !important;
+}
+[data-testid="stSidebar"] [data-testid="stPopover"] button:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Hide default caret */
+[data-testid="stSidebar"] [data-testid="stPopover"] button svg,
+[data-testid="stSidebar"] [data-testid="stPopover"] button i {
+    display: none !important;
+}
+
+/* Popover body */
+div[data-testid="stPopoverBody"] {
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 4px !important;
+    background-color: var(--input-bg) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    min-width: 120px !important;
+}
+div[data-testid="stPopoverBody"] button {
+    border: none !important;
+    background: transparent !important;
+    color: #ff4a4a !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    text-align: left !important;
+    border-radius: 6px !important;
+}
+div[data-testid="stPopoverBody"] button p {
+    color: #ff4a4a !important;
+}
+div[data-testid="stPopoverBody"] button:hover {
+    background-color: var(--hover-bg) !important;
 }
 
 /* Chat Input Styling */
 [data-testid="stChatInput"] {
-    max-width: 800px !important;
+    max-width: 850px !important;
     margin: 0 auto !important;
-    border-radius: 1.5rem !important;
-    border: 1px solid var(--secondary-background-color) !important;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05) !important;
-    padding: 0.5rem;
-    background-color: var(--secondary-background-color);
+    border-radius: 16px !important;
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--input-bg) !important;
+    padding: 4px 8px !important;
 }
-
 [data-testid="stChatInput"] textarea {
-    font-size: 1rem !important;
+    font-size: 14px !important;
+    color: var(--text-primary) !important;
+    background-color: transparent !important;
+}
+[data-testid="stChatInput"] textarea::placeholder {
+    color: var(--text-secondary) !important;
 }
 
-/* Chat Messages Structure */
+/* Chat Messages */
 [data-testid="stChatMessage"] {
     background-color: transparent !important;
-    padding: 1rem 0 !important;
+    padding: 1.2rem 0 !important;
     border-radius: 0;
     gap: 1.5rem;
 }
-
-/* Sidebar adjustments */
-[data-testid="stSidebar"] {
-    min-width: 260px !important;
-    max-width: 260px !important;
-    background-color: #171717 !important; /* attractive dark ChatGPT-like sidebar */
+[data-testid="stChatMessageContent"] {
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    color: var(--text-primary) !important;
 }
-
-/* Sidebar Title */
-.sidebar-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    padding-left: 0.5rem;
-    color: #ececec;
-}
-
-/* Sidebar Headings */
-[data-testid="stSidebar"] h2 {
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-    margin-bottom: 0.5rem !important;
-}
-
-[data-testid="stSidebar"] h3 {
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
-    color: #999 !important;
-}
-
-/* ALL Sidebar buttons (to make text smaller) */
-[data-testid="stSidebar"] button {
-    font-size: 13px !important;
-    min-height: 34px !important;
-    height: 34px !important;
-    border-radius: 8px !important;
-    border: none !important; /* Removes standard box border to feel like a single unified list */
-    background-color: transparent !important;
-}
-
-/* Chat History Titles specifically */
-[data-testid="stSidebar"] .stButton button p {
-    font-size: 13px !important;
-}
-
-/* Sidebar buttons hover effect */
-[data-testid="stSidebar"] button:hover {
-    background-color: var(--secondary-background-color) !important;
-}
-
-/* Fix for the Three-dots popover button */
-[data-testid="stSidebar"] [data-testid="stPopover"] button {
-    min-width: 32px !important;
+[data-testid="stChatMessage"] [data-testid="stIconContainer"] {
     width: 32px !important;
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Hide chevron icon inside popovers (and any other default icons) */
-[data-testid="stSidebar"] [data-testid="stPopover"] button svg,
-[data-testid="stSidebar"] [data-testid="stPopover"] button i {
-    display: none !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-[data-testid="stSidebar"] [data-testid="stPopover"] button::after,
-[data-testid="stSidebar"] [data-testid="stPopover"] button::before {
-    display: none !important;
-    content: none !important;
-}
-
-/* Make columns in chat history have less gap */
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
-    gap: 0.1rem !important;
-}
-
-/* Popover inner menu styling */
-div[data-testid="stPopoverBody"] {
-    border-radius: 0.5rem;
-    border: 1px solid var(--secondary-background-color);
-    padding: 0.5rem !important;
-    background-color: var(--background-color) !important;
+    height: 32px !important;
+    border-radius: 4px !important;
 }
 
 /* Top header hidden */
 header[data-testid="stHeader"] {
     background: transparent !important;
 }
-
-/* Typography */
-.main-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 0.5rem;
+header[data-testid="stHeader"]::before {
+    content: none !important;
 }
 
-.main-subtitle {
-    font-size: 1rem;
-    opacity: 0.7;
-    text-align: center;
-    margin-bottom: 3rem;
+/* Empty chat container */
+.empty-chat-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+}
+.empty-chat-container h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Dialog Overrides */
+div[role="dialog"] {
+    background-color: var(--main-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+}
+div[role="dialog"] h2 {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+div[role="dialog"] p {
+    font-size: 14px !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: 1.5rem !important;
+}
+div[role="dialog"] button {
+    border-radius: 8px !important;
+}
+
+/* File uploader in chat input */
+[data-testid="stFileUploader"] {
+    margin-bottom: 0;
 }
 
 /* Responsiveness */
@@ -147,9 +273,7 @@ header[data-testid="stHeader"] {
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 5rem !important;
-    }
-    
-    .main-title {
-        font-size: 2rem;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
 }
