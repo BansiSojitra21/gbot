@@ -26,11 +26,39 @@ html, body, [class*="css"], textarea, input, button {
     min-width: 260px !important;
     max-width: 260px !important;
     border-right: 1px solid var(--border-color) !important;
+    transition: min-width 0.2s ease, max-width 0.2s ease !important;
 }
 
-/* Fix sidebar top padding */
+/* Keep the native Streamlit header control at the far edge of the brand row. */
+[data-testid="stSidebarHeader"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    min-height: 2.75rem !important;
+    padding: 0.25rem 0.75rem !important;
+}
+
+[data-testid="stSidebarLogo"] {
+    width: auto !important;
+    height: 32px !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+}
+
 [data-testid="stSidebarUserContent"] {
-    padding-top: 2rem !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 0 0.75rem 0.75rem !important;
+    scrollbar-width: none !important;
+}
+
+[data-testid="stSidebarUserContent"]::-webkit-scrollbar {
+    display: none !important;
+}
+
+[data-testid="stSidebarUserContent"] [data-testid="stVerticalBlock"] {
+    gap: 0.5rem !important;
 }
 
 /* Container for main content */
@@ -53,32 +81,28 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
 
-/* Sidebar Title */
-.sidebar-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    padding-left: 0.2rem;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
+.st-key-sidebar-actions [data-testid="stVerticalBlock"] {
+    gap: 0.5rem !important;
 }
-.sidebar-title::before {
-    font-family: "bootstrap-icons";
-    content: "\f52b"; /* robot */
-    margin-right: 8px;
-    font-weight: normal;
-    font-size: 18px;
+
+.st-key-sidebar-chat-history {
+    min-height: 0 !important;
+    max-height: max(6rem, calc(100vh - 15rem)) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
 }
 
 /* Sidebar Section Heading */
 .sidebar-section-heading {
+    display: block !important;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 600;
+    line-height: 1.4 !important;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
-    padding-left: 0.2rem;
-    margin-top: 1.5rem;
+    padding-left: 0.25rem;
+    margin-top: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -91,67 +115,128 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ----------------------------------------------------
-   JS-Assigned Classes for Sidebar Buttons
+   Sidebar Buttons and Native Toggle Controls
 ---------------------------------------------------- */
 
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapseButton"] button {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+[data-testid="stSidebarCollapseButton"] button {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    color: var(--text-secondary) !important;
+}
+[data-testid="stSidebarCollapseButton"] button svg {
+    display: none !important;
+}
+[data-testid="stSidebarCollapseButton"] button > span {
+    display: none !important;
+}
+[data-testid="stSidebarCollapseButton"] button::before {
+    font-family: "bootstrap-icons";
+    content: "\f27f";
+    font-size: 16px;
+}
+[data-testid="stSidebarCollapseButton"] button:hover {
+    background-color: var(--hover-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+button[data-testid="stExpandSidebarButton"] {
+    position: fixed !important;
+    top: 0.25rem !important;
+    left: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    font-size: 0 !important;
+    z-index: 100001 !important;
+}
+button[data-testid="stExpandSidebarButton"] svg,
+button[data-testid="stExpandSidebarButton"] > span {
+    display: none !important;
+}
+button[data-testid="stExpandSidebarButton"]::before {
+    width: 28px;
+    height: 28px;
+    content: "";
+    background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cg stroke='%23F5F5F5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3.5h11l7 7V28H7z'/%3E%3Cpath d='M18 3.5v7h7M11 16h10M11 20h10M11 24h6M27 4v5M24.5 6.5h5'/%3E%3C/g%3E%3C/svg%3E");
+}
+button[data-testid="stExpandSidebarButton"]:hover {
+    background: var(--hover-bg) !important;
+    color: var(--text-primary) !important;
+}
+
 /* New Chat Button */
-.btn-new-chat {
+.st-key-new_chat button {
     background-color: transparent !important;
     border: 1px solid var(--border-color) !important;
     width: 100% !important;
     justify-content: flex-start !important;
-    padding-left: 12px !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    margin-bottom: 4px !important;
+    padding: 0 0.75rem !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    border-radius: 6px !important;
 }
-.btn-new-chat p {
+.st-key-new_chat button p {
     font-size: 14px !important;
     margin: 0 !important;
 }
-.btn-new-chat:hover {
+.st-key-new_chat button:hover {
     background-color: var(--hover-bg) !important;
 }
-.btn-new-chat p::before {
-    content: "+";
+.st-key-new_chat button p::before {
+    font-family: "bootstrap-icons";
+    content: "\f64d";
     display: inline-block;
-    margin-right: 8px;
-    font-family: Arial, sans-serif;
-    font-size: 18px;
-    font-weight: bold;
+    margin-right: 0.5rem;
+    font-size: 15px;
     line-height: 1;
 }
 
 /* Clear All Button */
-.btn-clear-all {
+.st-key-clear_all_chats button {
     background-color: transparent !important;
-    border: none !important;
+    border: 1px solid var(--border-color) !important;
     width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
+    height: 38px !important;
+    min-height: 38px !important;
     justify-content: flex-start !important;
-    padding-left: 12px !important;
+    padding: 0 0.75rem !important;
+    border-radius: 6px !important;
 }
-.btn-clear-all p {
-    font-size: 13px !important;
+.st-key-clear_all_chats button p {
+    font-size: 14px !important;
     margin: 0 !important;
     color: var(--text-secondary) !important;
 }
-.btn-clear-all:hover {
+.st-key-clear_all_chats button:hover {
     background-color: var(--hover-bg) !important;
 }
-.btn-clear-all p::before {
+.st-key-clear_all_chats button p::before {
     font-family: "bootstrap-icons";
-    content: "\f5df"; /* trash */
-    margin-right: 8px;
-    font-size: 14px;
+    content: "\f5df";
+    margin-right: 0.5rem;
+    font-size: 15px;
 }
-.btn-clear-all:hover p {
+.st-key-clear_all_chats button:hover p {
     color: var(--text-primary) !important;
 }
 
 /* Chat History Titles */
-.btn-chat-history {
+.st-key-sidebar-chat-history [class*="st-key-open_chat_"] button {
     background: transparent !important;
     border: none !important;
     display: flex !important;
@@ -163,15 +248,15 @@ h1, h2, h3, h4, h5, h6 {
     width: 100% !important;
     text-align: left !important;
 }
-.btn-chat-history > div {
+.st-key-sidebar-chat-history [class*="st-key-open_chat_"] button > div {
     width: 100% !important;
     justify-content: flex-start !important;
 }
-.btn-chat-history [data-testid="stMarkdownContainer"] {
+.st-key-sidebar-chat-history [class*="st-key-open_chat_"] [data-testid="stMarkdownContainer"] {
     width: 100% !important;
     text-align: left !important;
 }
-.btn-chat-history p {
+.st-key-sidebar-chat-history [class*="st-key-open_chat_"] p {
     font-size: 14px !important;
     color: var(--text-primary) !important;
     margin: 0 !important;
@@ -182,7 +267,7 @@ h1, h2, h3, h4, h5, h6 {
     text-align: left !important;
 }
 /* Chat history actions */
-.btn-rename {
+.st-key-sidebar-chat-history [class*="st-key-rename_chat_"] button {
     background: transparent !important;
     color: var(--text-primary) !important;
     width: 30px !important;
@@ -192,19 +277,26 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 !important;
     font-size: 18px !important;
 }
-.btn-rename p {
-    color: var(--text-primary) !important;
-    font-size: 18px !important;
+.st-key-sidebar-chat-history [class*="st-key-rename_chat_"] p {
+    color: transparent !important;
+    font-size: 0 !important;
     margin: 0 !important;
     line-height: 1 !important;
+    position: relative;
 }
-.btn-rename:hover {
+.st-key-sidebar-chat-history [class*="st-key-rename_chat_"] p::before {
+    font-family: "bootstrap-icons";
+    content: "\f4cb";
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+.st-key-sidebar-chat-history [class*="st-key-rename_chat_"] button:hover {
     background-color: var(--hover-bg) !important;
 }
 
-.btn-delete {
+.st-key-sidebar-chat-history [class*="st-key-delete_chat_"] button {
     background: transparent !important;
-    color: #ff7777 !important;
+    color: var(--text-secondary) !important;
     width: 30px !important;
     min-width: 30px !important;
     height: 30px !important;
@@ -212,13 +304,20 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 !important;
     font-size: 20px !important;
 }
-.btn-delete p {
-    color: #ff7777 !important;
-    font-size: 20px !important;
+.st-key-sidebar-chat-history [class*="st-key-delete_chat_"] p {
+    color: transparent !important;
+    font-size: 0 !important;
     margin: 0 !important;
     line-height: 1 !important;
+    position: relative;
 }
-.btn-delete:hover {
+.st-key-sidebar-chat-history [class*="st-key-delete_chat_"] p::before {
+    font-family: "bootstrap-icons";
+    content: "\f5df";
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+.st-key-sidebar-chat-history [class*="st-key-delete_chat_"] button:hover {
     background-color: var(--hover-bg) !important;
 }
 
@@ -399,14 +498,20 @@ div[role="dialog"] p {
     margin-bottom: 1.5rem !important;
 }
 
-/* Hide empty markdown wrappers used for script injection */
-.element-container:has(> script), 
-.stMarkdown:has(> script) {
-    display: none !important;
-}
-
 /* Responsiveness */
 @media (max-width: 768px) {
+    [data-testid="stSidebar"][data-collapsed="false"],
+    [data-testid="stSidebar"][aria-expanded="true"] {
+        min-width: min(280px, 85vw) !important;
+        max-width: min(280px, 85vw) !important;
+    }
+
+    [data-testid="stSidebar"][data-collapsed="true"],
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        min-width: 0 !important;
+        max-width: 0 !important;
+    }
+
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 5rem !important;
@@ -414,44 +519,133 @@ div[role="dialog"] p {
         padding-right: 1rem !important;
     }
 }
+@media (min-width: 769px) and (max-width: 1024px) {
+    [data-testid="stSidebar"][aria-expanded="true"] {
+        min-width: 250px !important;
+        max-width: 250px !important;
+    }
+}
 @media (min-width: 769px) {
     /* Override Streamlit's collapsed sidebar to act as a mini rail */
+    [data-testid="stSidebar"][data-collapsed="true"],
     [data-testid="stSidebar"][aria-expanded="false"] {
         min-width: 64px !important;
         max-width: 64px !important;
         transform: translateX(0) !important;
         visibility: visible !important;
-        z-index: 99999;
+        z-index: 10;
     }
-    
-    [data-testid="stSidebar"][aria-expanded="false"] .sidebar-title {
-        font-size: 0;
-        justify-content: center;
-        padding: 0;
-        margin-top: 10px;
-    }
-    [data-testid="stSidebar"][aria-expanded="false"] .sidebar-title::before {
-        margin-right: 0;
-        font-size: 24px;
-    }
-    
+
+    [data-testid="stSidebar"][data-collapsed="true"] .sidebar-section-heading,
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-sidebar-chat-history,
+    [data-testid="stSidebar"][data-collapsed="true"] [data-testid="stSidebarLogo"],
+    [data-testid="stSidebar"][data-collapsed="true"] [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebar"][aria-expanded="false"] .sidebar-section-heading,
-    [data-testid="stSidebar"][aria-expanded="false"] .btn-clear-all-wrapper,
-    [data-testid="stSidebar"][aria-expanded="false"] .btn-clear-all,
-    [data-testid="stSidebar"][aria-expanded="false"] p {
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-sidebar-chat-history,
+    [data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarLogo"],
+    [data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarCollapseButton"] {
         display: none !important;
     }
-    
-    [data-testid="stSidebar"][aria-expanded="false"] .btn-new-chat {
-        justify-content: center !important;
+
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-sidebar-actions,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-sidebar-actions {
+        display: block !important;
+        width: 100% !important;
         padding: 0 !important;
     }
-    [data-testid="stSidebar"][aria-expanded="false"] .btn-new-chat::before {
-        margin-right: 0;
-        font-size: 18px;
+
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-sidebar-actions [data-testid="stVerticalBlock"],
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-sidebar-actions [data-testid="stVerticalBlock"] {
+        align-items: center !important;
+        gap: 0.5rem !important;
     }
-    
-    [data-testid="stSidebar"][aria-expanded="false"] [data-testid="stHorizontalBlock"] {
-        display: none !important;
+
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-new_chat button,
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-clear_all_chats button,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-new_chat button,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-clear_all_chats button {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        border-color: transparent !important;
+        font-size: 0 !important;
+    }
+
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-new_chat button p,
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-clear_all_chats button p,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-new_chat button p,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-clear_all_chats button p {
+        width: 100% !important;
+        font-size: 0 !important;
+        text-align: center !important;
+    }
+
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-new_chat button p::before,
+    [data-testid="stSidebar"][data-collapsed="true"] .st-key-clear_all_chats button p::before,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-new_chat button p::before,
+    [data-testid="stSidebar"][aria-expanded="false"] .st-key-clear_all_chats button p::before {
+        display: inline-block !important;
+        margin: 0 !important;
+        font-size: 16px !important;
+        line-height: 1 !important;
+    }
+
+    button[data-testid="stExpandSidebarButton"]:hover::before,
+    button[data-testid="stExpandSidebarButton"]:focus-visible::before {
+        font-family: "bootstrap-icons";
+        content: "\f280";
+        width: auto;
+        height: auto;
+        background: none;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    button[data-testid="stExpandSidebarButton"]::after,
+    [data-testid="stSidebarCollapseButton"] button::after {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        display: none;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--hover-bg);
+        color: var(--text-primary);
+        font-family: "Times New Roman", Times, serif;
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+        pointer-events: none;
+        transform: translateY(-50%);
+    }
+
+    button[data-testid="stExpandSidebarButton"]::after {
+        left: calc(100% + 0.5rem);
+        content: "Expand sidebar";
+    }
+
+    [data-testid="stSidebarCollapseButton"] button::after {
+        right: calc(100% + 0.5rem);
+        content: "Collapse sidebar";
+    }
+
+    button[data-testid="stExpandSidebarButton"]:hover::after,
+    button[data-testid="stExpandSidebarButton"]:focus-visible::after,
+    [data-testid="stSidebarCollapseButton"] button:hover::after,
+    [data-testid="stSidebarCollapseButton"] button:focus-visible::after {
+        display: block;
+    }
+
+    body:has(button[data-testid="stExpandSidebarButton"]) [data-testid="stHeaderLogo"] {
+        visibility: hidden !important;
+    }
+
+    button[data-testid="stExpandSidebarButton"]:focus-visible {
+        outline: 2px solid var(--text-secondary) !important;
+        outline-offset: -2px !important;
     }
 }

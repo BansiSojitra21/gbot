@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 from utils.api_client import get_client
@@ -15,9 +14,14 @@ load_dotenv()
 api_key = os.getenv("OPENROUTER_API_KEY")
 
 st.set_page_config(
-    page_title="AI Chatbot",
+    page_title="DocuMind AI",
     layout="wide",
     initial_sidebar_state="expanded"
+)
+st.logo(
+    os.path.join(os.path.dirname(__file__), "assets", "documind-logo.svg"),
+    size="medium",
+    icon_image=os.path.join(os.path.dirname(__file__), "assets", "documind-icon.svg")
 )
 
 # Load custom CSS
@@ -66,96 +70,34 @@ def clear_all_chats_dialog():
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    st.markdown('<div data-testid="stSidebarHeader" class="sidebar-title">AI Chatbot</div>', unsafe_allow_html=True)
-    
-    st.markdown('<div class="new-chat-btn-wrapper">', unsafe_allow_html=True)
-    if st.button("New Chat", use_container_width=True, key="new_chat"):
-        create_new_chat()
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-        
-    st.markdown('<div class="clear-all-btn-wrapper">', unsafe_allow_html=True)
-    if st.button("Clear All Chats", use_container_width=True, key="clear_all_chats"):
-        clear_all_chats_dialog()
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(key="sidebar-actions"):
+        if st.button("New Chat", use_container_width=True, key="new_chat", help="New Chat"):
+            create_new_chat()
+            st.rerun()
+
+        if st.button("Clear All Chats", use_container_width=True, key="clear_all_chats", help="Clear All Chats"):
+            clear_all_chats_dialog()
 
     st.markdown('<div class="sidebar-section-heading">Previous Chats</div>', unsafe_allow_html=True)
-    
-    chat_items = list(get_saved_chats().items())
-    chat_items.reverse()
-    
-    for chat_id, chat in chat_items:
-        col1, col2, col3 = st.columns([6, 1, 1], gap="small")
-        with col1:
-            title = chat["title"]
-            display_title = title if len(title) <= 32 else f"{title[:32].rstrip()}..."
-            if st.button(display_title, key=f"open_chat_{chat_id}", use_container_width=True):
-                activate_chat(chat_id)
-                st.rerun()
-        with col2:
-            if st.button("✎", key=f"rename_chat_{chat_id}", help="Rename chat", use_container_width=True):
-                rename_chat_dialog(chat_id)
-        with col3:
-            if st.button("×", key=f"delete_chat_{chat_id}", help="Delete chat", use_container_width=True):
-                delete_chat_dialog(chat_id)
-                    
-    # JS to attach classes to buttons based on their text
-    components.html(
-        """
-        <script>
-        const parentDocs = window.parent.document;
-        
-        function applyClasses() {
-            const buttons = parentDocs.querySelectorAll('[data-testid="stSidebar"] button');
-            buttons.forEach(btn => {
-                // Remove existing custom classes
-                btn.classList.remove('btn-new-chat', 'btn-clear-all', 'btn-delete', 'btn-rename', 'btn-chat-history');
 
-                const keyedContainer = btn.closest('[class*="st-key-"]');
-                const keyClass = keyedContainer
-                    ? Array.from(keyedContainer.classList).find(name => name.startsWith('st-key-')) || ''
-                    : '';
-                const text = btn.innerText.trim();
+    with st.container(key="sidebar-chat-history"):
+        chat_items = list(get_saved_chats().items())
+        chat_items.reverse()
 
-                if(keyClass === 'st-key-new_chat') {
-                    btn.classList.add("btn-new-chat");
-                    btn.setAttribute('title', 'New Chat');
-                }
-                else if(keyClass === 'st-key-clear_all_chats') {
-                    btn.classList.add("btn-clear-all");
-                }
-                else if(keyClass.startsWith('st-key-open_chat_')) {
-                    btn.classList.add("btn-chat-history");
-                    btn.setAttribute('title', text);
-                }
-                else if(keyClass.startsWith('st-key-rename_chat_')) {
-                    btn.classList.add("btn-rename");
-                    btn.setAttribute('title', 'Rename chat');
-                }
-                else if(keyClass.startsWith('st-key-delete_chat_')) {
-                    btn.classList.add("btn-delete");
-                    btn.setAttribute('title', 'Delete chat');
-                }
-            });
-        }
-        
-        // Run immediately
-        applyClasses();
-        
-        // Streamlit dynamically rebuilds the DOM on interactions.
-        const observer = new MutationObserver((mutations) => {
-            applyClasses();
-        });
-        
-        const sidebar = parentDocs.querySelector('[data-testid="stSidebar"]');
-        if (sidebar) {
-            observer.observe(sidebar, { childList: true, subtree: true });
-        }
-        </script>
-        """,
-        height=0,
-        width=0
-    )
+        for chat_id, chat in chat_items:
+            col1, col2, col3 = st.columns([6, 1, 1], gap="small")
+            with col1:
+                title = chat["title"]
+                display_title = title if len(title) <= 32 else f"{title[:32].rstrip()}..."
+                if st.button(display_title, key=f"open_chat_{chat_id}", use_container_width=True):
+                    activate_chat(chat_id)
+                    st.rerun()
+            with col2:
+                if st.button("Rename", key=f"rename_chat_{chat_id}", help="Rename chat", use_container_width=True):
+                    rename_chat_dialog(chat_id)
+            with col3:
+                if st.button("Delete", key=f"delete_chat_{chat_id}", help="Delete chat", use_container_width=True):
+                    delete_chat_dialog(chat_id)
 
 current_chat = get_current_chat()
 if not current_chat:

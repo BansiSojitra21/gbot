@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="32" viewBox="0 0 200 32" fill="none">
+  <title>DocuMind AI</title>
+  <g stroke="#F5F5F5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 4.5h10l6 6V27H4z"/>
+    <path d="M14 4.5v6h6"/>
+    <path d="M8 16h8M8 20h8"/>
+    <path d="M24 7.5v6M21 10.5h6"/>
+  </g>
+  <text x="34" y="25" fill="#F5F5F5" font-family="Times New Roman, Times, serif" font-size="24" font-weight="600">DocuMind AI</text>
+</svg>
