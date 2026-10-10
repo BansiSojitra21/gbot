@@ -1,13 +1,25 @@
 import os
+
 import streamlit as st
 from dotenv import load_dotenv
 
 from utils.api_client import get_client
-from utils.rag_engine import create_rag_index, retrieve_documents
 from utils.chat_manager import (
-    init_session_state, create_new_chat, get_current_chat,
-    get_saved_chats, has_user_messages, activate_chat,
-    delete_chat, clear_all_chats
+    activate_chat,
+    clear_all_chats,
+    create_new_chat,
+    delete_chat,
+    get_current_chat,
+    get_saved_chats,
+    has_user_messages,
+    init_session_state,
+)
+from utils.rag_engine import (
+    build_hybrid_index,
+    ensure_storage_directories,
+    get_session_identifier,
+    retrieve_documents,
+    save_uploaded_document,
 )
 
 load_dotenv()
@@ -18,6 +30,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+ensure_storage_directories()
 st.logo(
     os.path.join(os.path.dirname(__file__), "assets", "documind-logo.svg"),
     size="medium",
@@ -39,6 +53,9 @@ if not api_key:
 client = get_client(api_key)
 
 init_session_state()
+
+# Keep the per-session storage isolated for uploaded documents.
+session_owner = get_session_identifier()
 
 # Confirmation Dialogs
 @st.dialog("Rename Chat")
@@ -78,6 +95,7 @@ with st.sidebar:
         if st.button("Clear All Chats", use_container_width=True, key="clear_all_chats", help="Clear All Chats"):
             clear_all_chats_dialog()
 
+    st.caption("Uploaded PDFs are isolated to this browser session. For multi-user deployments, use authenticated user storage instead of session-only folders.")
     st.markdown('<div class="sidebar-section-heading">Previous Chats</div>', unsafe_allow_html=True)
 
     with st.container(key="sidebar-chat-history"):
@@ -105,6 +123,7 @@ if not current_chat:
     current_chat = get_current_chat()
     st.rerun()
 
+current_chat["rag_index"], current_chat["rag_chunks"] = build_hybrid_index(session_id=session_owner)
 
 # ============================================================
 # DISPLAY CURRENT CHAT
@@ -173,6 +192,21 @@ Rules:
                 if not answer:
                     answer = "Sorry, I couldn't generate a response."
 
+                if retrieved_chunks:
+                    seen_sources = []
+                    source_lines = []
+                    for chunk in retrieved_chunks[:4]:
+                        source_name = chunk.get("filename") or "Document"
+                        page_number = chunk.get("page")
+                        label = f"{source_name}"
+                        if page_number:
+                            label += f" (page {page_number})"
+                        if label not in seen_sources:
+                            seen_sources.append(label)
+                            source_lines.append(f"- {label}")
+                    if source_lines:
+                        answer = f"{answer}\n\nSources:\n" + "\n".join(source_lines)
+
         current_chat["messages"].append({"role": "assistant", "content": answer})
     except Exception as e:
         st.session_state.api_error = str(e)
@@ -202,23 +236,22 @@ if prompt:
     # Process PDFs
     if uploaded_files:
         for uploaded_pdf in uploaded_files:
-            with st.spinner(f"Processing {uploaded_pdf.name}..."):
-                index, chunks = create_rag_index(uploaded_pdf)
-            if index is None:
-                st.error("Could not extract readable text from the PDF.")
-            else:
-                current_chat["rag_index"] = index
-                current_chat["rag_chunks"] = chunks
+            try:
+                with st.spinner(f"Processing {uploaded_pdf.name}..."):
+                    saved_path = save_uploaded_document(uploaded_pdf, session_id=session_owner)
                 current_chat["document_name"] = uploaded_pdf.name
-                st.toast(f"PDF '{uploaded_pdf.name}' processed successfully! {len(chunks)} chunks created.")
+                current_chat["rag_index"], current_chat["rag_chunks"] = build_hybrid_index(session_id=session_owner)
+                st.toast(f"PDF '{uploaded_pdf.name}' processed successfully! {len(current_chat['rag_chunks'])} chunks indexed.")
+            except Exception as exc:
+                st.error(f"Could not process '{uploaded_pdf.name}': {exc}")
 
     if not user_text.strip():
         st.rerun()
-                
+
     # Save & Display user message
     first_user_message = not has_user_messages(current_chat)
     current_chat["messages"].append({"role": "user", "content": user_text})
-    
+
     if first_user_message:
         current_chat["title"] = user_text.strip()
     st.session_state.pending_response_chat_id = st.session_state.current_chat_id
