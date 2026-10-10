@@ -454,6 +454,9 @@ button[data-testid="stExpandSidebarButton"]:hover {
     border-radius: 16px !important;
     background-color: var(--input-bg) !important;
 }
+[data-testid="stChatMessageAvatarUser"] {
+    display: none !important;
+}
 [class*="st-key-message-user-"] [data-testid="stChatMessageContent"] {
     flex: 0 1 auto !important;
     text-align: right !important;

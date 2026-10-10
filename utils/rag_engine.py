@@ -17,7 +17,7 @@ SUPPORTED_EXTENSIONS = {".pdf"}
 DEFAULT_CHUNK_SIZE = 800
 DEFAULT_CHUNK_OVERLAP = 120
 DEFAULT_RETRIEVAL_TOP_K = 4
-DEFAULT_RELEVANCE_THRESHOLD = 0.35
+DEFAULT_RELEVANCE_THRESHOLD = 0.25
 GREETING_PATTERN = re.compile(
     r"^(?:hi|hello|hey|good morning|good afternoon|good evening|thanks|thank you)"
     r"(?:\s+there)?[!.?,\s]*$",
@@ -115,12 +115,17 @@ def build_document_chunks(file_path, source_type="built_in", owner_id=None, docu
 
     try:
         reader = PdfReader(str(file_path))
-    except Exception:
-        return []
+    except Exception as exc:
+        raise ValueError(f"Could not read PDF '{file_path.name}': {exc}") from exc
 
     all_chunks = []
     for page_number, page in enumerate(reader.pages, start=1):
-        page_text = page.extract_text()
+        try:
+            page_text = page.extract_text()
+        except Exception as exc:
+            raise ValueError(
+                f"Could not extract text from page {page_number} of '{file_path.name}': {exc}"
+            ) from exc
         if not page_text:
             continue
         page_chunks = create_chunks(page_text, page_number=page_number, metadata=metadata_base)

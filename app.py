@@ -27,10 +27,11 @@ load_dotenv()
 api_key = os.getenv("OPENROUTER_API_KEY")
 assets_dir = os.path.join(os.path.dirname(__file__), "assets")
 documind_icon = os.path.join(assets_dir, "documind-icon.svg")
+documind_favicon = os.path.join(assets_dir, "documind-favicon.svg")
 
 st.set_page_config(
     page_title="DocuMind AI",
-    page_icon=documind_icon,
+    page_icon=documind_favicon,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -99,7 +100,6 @@ with st.sidebar:
         if st.button("Clear All Chats", use_container_width=True, key="clear_all_chats", help="Clear All Chats"):
             clear_all_chats_dialog()
 
-    st.caption("Uploaded PDFs are isolated to this browser session. For multi-user deployments, use authenticated user storage instead of session-only folders.")
     st.markdown('<div class="sidebar-section-heading">Previous Chats</div>', unsafe_allow_html=True)
 
     with st.container(key="sidebar-chat-history"):
