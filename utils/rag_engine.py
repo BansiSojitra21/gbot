@@ -1,4 +1,5 @@
 import hashlib
+import os
 import re
 import uuid
 from pathlib import Path
@@ -16,7 +17,12 @@ SUPPORTED_EXTENSIONS = {".pdf"}
 DEFAULT_CHUNK_SIZE = 800
 DEFAULT_CHUNK_OVERLAP = 120
 DEFAULT_RETRIEVAL_TOP_K = 4
-DEFAULT_RELEVANCE_THRESHOLD = 0.0
+DEFAULT_RELEVANCE_THRESHOLD = 0.35
+GREETING_PATTERN = re.compile(
+    r"^(?:hi|hello|hey|good morning|good afternoon|good evening|thanks|thank you)"
+    r"(?:\s+there)?[!.?,\s]*$",
+    re.IGNORECASE,
+)
 
 
 @st.cache_resource
@@ -58,6 +64,10 @@ def clean_extracted_text(raw_text):
     text = re.sub(r"[ \t]+\n", "\n", text)
     text = re.sub(r"\n{2,}", "\n\n", text)
     return text.strip()
+
+
+def is_greeting_only(text):
+    return bool(GREETING_PATTERN.fullmatch((text or "").strip()))
 
 
 def create_chunks(text, page_number=None, chunk_size=DEFAULT_CHUNK_SIZE, overlap=DEFAULT_CHUNK_OVERLAP, metadata=None):
@@ -221,9 +231,12 @@ def save_uploaded_document(uploaded_file, session_id=None):
     return target_path
 
 
-def retrieve_documents(question, index, chunks, top_k=DEFAULT_RETRIEVAL_TOP_K, relevance_threshold=DEFAULT_RELEVANCE_THRESHOLD):
+def retrieve_documents(question, index, chunks, top_k=DEFAULT_RETRIEVAL_TOP_K, relevance_threshold=None):
     if index is None or not chunks:
         return []
+
+    if relevance_threshold is None:
+        relevance_threshold = float(os.getenv("RAG_RELEVANCE_THRESHOLD", str(DEFAULT_RELEVANCE_THRESHOLD)))
 
     embedding_model = get_embedding_model()
     question_embedding = embedding_model.encode(
